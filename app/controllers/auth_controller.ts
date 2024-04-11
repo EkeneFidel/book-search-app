@@ -10,12 +10,17 @@ export default class AuthController {
     const user = await User.verifyCredentials(email, password)
     await auth.use('web').login(user)
 
-    return user
+    return { message: 'login successful' }
   }
 
-  async register({ request }: HttpContext) {
+  async register({ request, response }: HttpContext) {
     const { email, password } = request.only(['email', 'password'])
     const data = await authValidator.validate({ email, password })
+
+    const existingUser = await User.findBy('email', email)
+    if (existingUser) {
+      return response.badRequest({ message: 'Email already exists' })
+    }
 
     const user = await User.create(data)
 
