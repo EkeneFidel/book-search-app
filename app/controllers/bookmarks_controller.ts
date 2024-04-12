@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import axios from 'axios'
+import redis from '@adonisjs/redis/services/main'
 
 import Bookmark from '#models/bookmark'
 import env from '#start/env'
@@ -32,7 +33,14 @@ export default class BookmarksController {
 
   async index({ auth, request }: HttpContext) {
     const { page = 1, limit = 10 } = request.qs()
+
+    const cachedBookmarks = await redis.get(`${auth.user?.id}`)
+
+    if (cachedBookmarks) {
+      return JSON.parse(cachedBookmarks)
+    }
     const bookmarks = await Bookmark.query().where({ userId: auth.user?.id }).paginate(page, limit)
+    await redis.setex(`${auth.user?.id}`, 30 * 60, JSON.stringify(bookmarks))
 
     return bookmarks
   }
@@ -47,6 +55,8 @@ export default class BookmarksController {
       if (bookmarkExists) {
         return response.badRequest({ message: 'This Book has been bookmarked already' })
       }
+
+      await redis.del(`${user?.id}`)
 
       const result = await axios(
         `https://www.googleapis.com/books/v1/volumes/${volumeId}?key=${env.get('GOOGLE_API_KEY')}`
@@ -71,8 +81,6 @@ export default class BookmarksController {
     const { user } = auth
     const { id } = params
 
-    console.log(id)
-
     try {
       if (!id) {
         return response.badRequest({ error: 'id required' })
@@ -84,6 +92,7 @@ export default class BookmarksController {
       }
 
       await bookmark.delete()
+      await redis.del(`${user?.id}`)
 
       return response.json({ success: true })
     } catch (error) {
