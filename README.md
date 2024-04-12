@@ -20,16 +20,30 @@ git clone https://github.com/EkeneFidel/book-search-app.git
     - DB_DATABASE
     - REDIS_PASSWORD
 
-4.  Go into the cloned repository and run `npm install` to install the packages required.
+4. You can either work with an online MySQL and Redis database or use your locally installed MySQL and Redis. Do configure to your choice in the `.env` file.
 
-5. Use `npm run dev` to start the application.
 
-6. Your application should be running on [localhost:3333](http://localhost:3333/)
+5.  Go into the cloned repository and run `npm install` to install the packages required.
+
+6. Use `npm run dev` to start the application.
+
+7. Your application should be running on [localhost:3333](http://localhost:3333/)
 > [!NOTE]
-> `3333` is the default port, your app would run on the port set in the `PORT` variable in your enviroment variables
+> `3333` is the default port, your app would run on the port set in the `PORT` variable in your `.env` file
+
+### API Endpoints
+| Method | Endpoints | Description |
+| --- | --- | --- |
+| `GET` | `/search?name=harry porter&limit=10&page=4` | To get page 4 of books with 10 per page and with keyword/name `harry potter`  |
+| `POST` | `/auth/login` | To login an existing user |
+| `POST` | `/auth/register` | To register a new user |
+| `POST` | `/bookmarks` | To add a bookmark |
+| `GET` | `/bookmarks?limit=10&page=4` | To get page 4 of bookmarks by logged in user, with 10 per page |
+| `DELETE` | `/bookmarks/20` | To delete a single bookmark with id of 20 |
 
 ## Documentation
 Details on the API structure is available in the [Dcumentation](https://documenter.getpostman.com/view/16637530/2sA3BheEkW)
 
-You can use the documentation to test the app on your local enviroment
+You can use the documentation to test the app in your local enviroment
+
 
